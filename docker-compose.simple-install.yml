@@ -18,21 +18,22 @@ services:
     container_name: redis
     image: redis:6.0.16-alpine
     restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
   eramba:
     container_name: eramba
     image: ghcr.io/eramba/eramba:latest
     restart: always
     ports:
-      - 8443:443
+      - 8080:80
     volumes:
       - data:/var/www/eramba/app/upgrade/data
       - app:/var/www/eramba
       - logs:/var/www/eramba/app/upgrade/logs
-      - ./apache/ssl/mycert.crt:/etc/ssl/certs/mycert.crt
-      - ./apache/ssl/mycert.key:/etc/ssl/private/mycert.key
       - ./apache/security.conf:/etc/apache2/conf-available/security.conf
       - ./apache/ports.conf:/etc/apache2/ports.conf
-      - ./apache/vhost-ssl.conf:/etc/apache2/sites-available/000-default.conf
+      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
       - ./crontab/crontab:/etc/cron.d/eramba-crontab
     environment:
       DB_HOST: ${DB_HOST}
